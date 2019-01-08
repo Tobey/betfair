@@ -2,7 +2,60 @@ from django.db import models
 import requests
 
 
-class Fixture(models.Model):
+class Team(models.Model):
+
+    """
+    https://site.web.api.espn.com
+    /apis/v2/sports/basketball/nba/standings?region=gb&lang=en&contentorigin=espn&type=1&level=1&sort=winpercent%3Adesc%2Cwins%3Adesc%2Cgamesbehind%3Aasc
+    """
+    name = models.CharField(max_length=100, db_index=True)
+
+    slug = models.CharField(max_length=5, unique=True)
+    conference = models.CharField(max_length=1)
+    logo = models.URLField(max_length=10)
+
+    wins = models.IntegerField()
+    losses = models.IntegerField()
+
+    win_percent = models.FloatField()
+    avg_points_for = models.FloatField()
+    avg_points_against = models.FloatField()
+    streak = models.IntegerField()
+
+    playoff_seed = models.FloatField()
+    division_win_percent = models.FloatField()
+    league_win_percentange = models.FloatField()
+
+    threepoints_or_less = models.CharField(max_length=10)  # "Record in games decided by 3 points or less"
+    tenpoints_or_more = models.CharField(max_length=10)  # "Record in games decided by 10 points or more"
+
+    vsorbetter =  models.CharField(max_length=10)  # "Record against Teams .500 and Above"
+    vsorbelow = models.CharField(max_length=10)  # "Record against Teams below .500"
+
+
+    @property
+    def website(self):
+        return f'http://www.espn.com/nba/team/roster/_/name/{self.slug}'
+
+    def __str__(self):
+        return self.name
+
+
+
+class Player(models.Model):
+
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+
+    name = models.CharField(max_length=100)
+    pos = models.CharField(max_length=5)
+    no = models.CharField(max_length=20)
+    slug = models.CharField(max_length=20, unique=True)
+    img = models.URLField()
+
+    def __str__(self):
+        return self.name
+
+class Fixture:
     date = models.DateField()
 
     _d = None

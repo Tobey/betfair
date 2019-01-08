@@ -4,62 +4,49 @@ from django.utils.html import format_html
 from nba import models
 
 
-@admin.register(models.Fixture)
-class FixtureAdmin(admin.ModelAdmin):
+class PlayerInline(admin.TabularInline):
+    model = models.Player
+
+    fields = (
+        'thumbnail',
+        'name',
+        'pos',
+        'no',
+    )
+    readonly_fields = fields
+    extra = 0
+
+    def thumbnail(self, obj):
+        return format_html(f'<img src="{obj.img}" height="50" width="50" />')
 
 
+@admin.register(models.Team)
+class TeamAdmin(admin.ModelAdmin):
 
-    def data(self, obj):
-        return obj.info
+    list_display = (
+        'name',
+        'thumbnail',
+        'wins',
+        'losses',
+        'win_percent',
+        'avg_points_for',
+        'streak',
+    )
 
-    def data3(self, obj):
-        return obj.info
+    fields = (
+        ('name', 'slug', 'conference', 'thumbnail'),
+        ('wins', 'losses'),
+        ('win_percent', 'avg_points_for', 'avg_points_against', 'streak'),
+        ('playoff_seed', 'division_win_percent', 'league_win_percentange'),
+        ('threepoints_or_less', 'tenpoints_or_more', 'vsorbetter', 'vsorbelow'),
+    )
+    readonly_fields = (
+        'thumbnail',
+    )
 
-    def do(self, obj):
-        fields = [
-            'date',
-        ]
-
-        team_one = [[],[],[]]
-        team_two= [[],[],[]]
-        for i, data in enumerate(obj.info['content'][0]['items'], 1):
-            team_one[0].append(data['teamOneName'])
-            team_one[1].append(data['teamOneLogoURL'])
-            team_one[2].append( data['teamOneScore'])
-
-            team_two[0].append(data['teamTwoName'])
-            team_two[1].append(data['teamTwoLogoURL'])
-            team_two[2].append(data['teamTwoScore'])
-
-            fields.append((f'match_{i}_team1', f'match_{i}_team1_logo', f'match_{i}_team1_score'))
-            fields.append((f'match_{i}_team2', f'match_{i}_team2_logo', f'match_{i}_team2_score'))
-            print(team_two, team_two)
-
-            setattr(self, f'match_{i}_team1', lambda *a, **k: self.t1[0][i-1])
-            setattr(self, f'match_{i}_team1_logo', lambda *a, **k: format_html(u'<img src="%s" height="42" width="42" />' % self.t1[1][i-1]))
-            setattr(self, f'match_{i}_team1_score', lambda *a, **k: self.t1[2][i-1])
-            setattr(self, f'match_{i}_team2', lambda *a, **k: self.t2[0][i-1])
-            setattr(self, f'match_{i}_team2_logo', lambda *a, **k:format_html( u'<img src="%s" height="42" width="42" />' % self.t2[1][i-1]))
-            setattr(self, f'match_{i}_team2_score', lambda *a, **k: self.t2[2][i-1])
-            f = 2
-
-        self.t1 = team_one
-        self.t2 = team_two
-        return fields
-
-    def get_fields(self, request, obj=None):
-
-        return self.do(obj)
-
-    def get_readonly_fields(self, request, obj=None):
-        d = []
-        f  = self.do(obj)
-        for t in f:
-            if isinstance(t, str):
-                d.append(t)
-            else:
-                for a in t:
-                    d.append(a)
-        return d
-
+    inlines = (
+        PlayerInline,
+    )
+    def thumbnail(self, obj):
+        return format_html(f'<img src="{obj.logo}" height="42" width="42" />')
 
