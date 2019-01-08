@@ -12,7 +12,7 @@ class Team(models.Model):
 
     slug = models.CharField(max_length=5, unique=True)
     conference = models.CharField(max_length=1)
-    logo = models.URLField(max_length=10)
+    logo = models.URLField()
 
     wins = models.IntegerField()
     losses = models.IntegerField()
