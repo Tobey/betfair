@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+    <script>
+        String.prototype.format = function () {
+          var i = 0, args = arguments;
+          return this.replace(/{}/g, function () {
+            return typeof args[i] != 'undefined' ? args[i++] : '';
+          });
+        };
+
+
+        $( document ).ready(function() {
+
+           var my_coins = {{ my_coins|safe }}
+           var opponent =  {{ opponent|safe }}
+           var coin = '<td class="coin" row="{}" column="{}" can_play="true"></td>'
+            for (var row = 0; row < 7; row++){
+               $('#board').append('<tr id="row{}"></tr>'.format(row))
+               for (var col = 0; col < 7; col++){
+                    $('#board').find('#row{}'.format(row)).append(coin.format(row,  col))
+                }
+            }
+            for (c in my_coins){
+                c = my_coins[c]
+                $('td[row="'+ c['row'] + '"][column="' + c['column'] + '"]').css('border-color', 'red')
+                $('td[row="'+ c['row'] + '"][column="' + c['column'] + '"]').attr('can_play', false)
+            }
+
+            for (c in opponent){
+                c = opponent[c]
+                $('td[row="'+ c['row'] + '"][column="' + c['column'] + '"]').css('border-color', 'blue')
+                $('td[row="'+ c['row'] + '"][column="' + c['column'] + '"]').attr('can_play', false)
+            }
+            $('table').on('click', 'td', function() {
+            pos = $(this).attr('column')
+            console.log(pos)
+
+            play = $('td[column="'+pos+'"][can_play="true"]')
+            current_coin = play.last()
+             $.ajax({
+                url: document.current_url,
+                type: "post",
+                data: {row: current_coin.attr('row'), column: current_coin.attr('column'), csrfmiddlewaretoken: '{{ csrf_token }}'},
+                success: function(response) {
+                      console.log(response)
+                      if (response['success']){
+                          coins = play.length
+                          console.log(coins)
+                          play.each(function(ind){
+                          var coin = $(this)
+                          setTimeout(function(){
+                              if (ind > 0){
+                                  play.eq(ind-1).css('border-color', 'black')
+                              }
+                              coin.css('border-color', 'red')
+                              if (ind == coins-1){
+                                  coin.attr('can_play', 'false')
+                              }
+                          }, 50*ind)
+                        })
+                       }
+                }
+            });
+
+
+        });
+        });
+    </script>
+<style>
+    td{
+        border: 1px solid black;
+        border-radius: 50%;
+  ]
+    }
+    tr{
+     width: 100%;
+    }
+    table {
+        width: 600px;
+        height: 500px;
+     border: 1px solid black;
+        align-self: center;
+     margin:auto;
+    }
+
+    div.centered
+    {
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="centered">
+    <table id="board">
+    </table>
+</div>
+
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block styles %}
+    <style>
+        .team_logo {
+            -webkit-transition: all 0.10s ease;
+            transition: all 0.10s ease;
+            }
+        .team_logo:hover {
+            -webkit-filter: saturate(2);
+        }
+        .team_data{
+         text-decoration: none;
+        }
+        header h4 {
+            border-bottom: 1px solid black;
+        }
+    </style>
+{% endblock %}
+
+{% block banner %}
+<div class="inner">
+    <header class="special">
+        <h2>Choose your players</h2>
+    </header>
+</div>
+{% endblock %}
+
+
+{% block section %}
+    <div class="inner">
+        <header class="special">
+           <h1> {{ team.name }} </h1>
+        </header>
+        <div class="highlights">
+            {% for player in players %}
+            <section>
+                <div class="content">
+                    <a href="#" class="team_data">
+                        <header>
+                            <h4><b>{{ player.name }}</b>&nbsp; # {{ player.number }}.</h4>
+                            <p>{{ player.postion }}</p>
+                        </header>
+                        <img src="{{ player.image }}" class="team_logo"/>
+                    </a>
+                </div>
+            </section>
+            {% endfor %}
+
+        </div>
+    </div>
+{% endblock section %}
+
+{% block scripts %}
+
+$( document ).ready(function() {
+    $('.team_logo').mouseenter(
+        function(){
+            $(this).parent().parent().css('background', 'rgba(64, 93, 39, 0.3')
+        }
+    ).mouseleave(
+        function(){
+            $(this).parent().parent().css('background', 'white')
+        }
+    );
+});
+{% endblock scripts %}

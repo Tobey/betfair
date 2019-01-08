@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}Games{% endblock %}
+
+{% block content %}
+    <h2>Loged in as {{ user }}</h2>
+    <ul>
+        {% for game in my_games %}
+            <li>  <a href="/connect4/play/{{game.pk}}/">{{ game }} </a> </li>
+        {% endfor %}
+    </ul>
+    <br>
+    <p>----------------</p>
+    <br>
+    <ul>
+        {% for game in other_games %}
+          <li>  <a href="/connect4/join/{{game.pk}}/">{{ game }} </a> </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}
+
+{% block nav %}
+<li>  <a href="/connect4/new_game/"> New Game </a> </li>
+{% endblock %}

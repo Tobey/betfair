@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  <style>
+
+    input, label {
+    display:block;
+     margin : 0 auto;
+}
+  </style>
+{% endblock %}
+
+{% block content %}
+  <h2>Sign up</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Sign up</button>
+  </form>
+{% endblock %}
+
+
+{% block nav %}
+ <li> <a href="/connect4/login">Login</a><li>
+{% endblock %}
