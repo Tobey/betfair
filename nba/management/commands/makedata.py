@@ -1,6 +1,7 @@
 import os
 
 import json
+from datetime import datetime
 from pprint import pprint
 
 import requests
@@ -52,8 +53,6 @@ def get_player_from_instance(instance):
 
     soup = BeautifulSoup(requests.get(instance.website).text, 'html5lib')
 
-
-
     roster = soup.select_one('.Table2__table-scroller.Table2__table')
     rows = roster.select('tr')
     for row in rows:
@@ -74,10 +73,8 @@ def get_player_from_instance(instance):
         no = columns[0].text.strip()
         pos = columns[2].text.strip()
 
-
         dets = dict(**more_dets, name=name, no=no, pos=pos, team=instance)
         player, _ = models.Player.objects.update_or_create(dets, slug=dets['slug'])
-
 
 
 class Command(BaseCommand):
@@ -101,12 +98,6 @@ class Command(BaseCommand):
                 for stat in stats:
                     if stat['type'] in stats_mapping:
                         info[stats_mapping[stat['type']]] = stat.get('value', stat['displayValue'])
-                instane, _ = models.Team.objects.update_or_create(info, name=info['name'])
+                instance, _ = models.Team.objects.update_or_create(info, name=info['name'])
 
-                get_player_from_instance(instane)
-
-
-
-
-
-
+                get_player_from_instance(instance)

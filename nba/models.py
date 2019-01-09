@@ -1,5 +1,8 @@
 from django.db import models
 import requests
+import requests_cache
+
+requests_cache.install_cache()
 
 
 class Team(models.Model):
@@ -29,7 +32,7 @@ class Team(models.Model):
     threepoints_or_less = models.CharField(max_length=10)  # "Record in games decided by 3 points or less"
     tenpoints_or_more = models.CharField(max_length=10)  # "Record in games decided by 10 points or more"
 
-    vsorbetter =  models.CharField(max_length=10)  # "Record against Teams .500 and Above"
+    vsorbetter = models.CharField(max_length=10)  # "Record against Teams .500 and Above"
     vsorbelow = models.CharField(max_length=10)  # "Record against Teams below .500"
 
 
@@ -39,7 +42,6 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class Player(models.Model):
@@ -55,24 +57,35 @@ class Player(models.Model):
     def __str__(self):
         return self.name
 
-class Fixture:
-    date = models.DateField()
 
-    _d = None
+class Game(models.Model):
+
+    home_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='home_games')
+    home_score = models.IntegerField(null=True, default=None)
+
+    away_team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='away_games')
+    away_score = models.IntegerField(null=True, default=None)
+
+    fixture = models.ForeignKey('Fixture', on_delete=models.CASCADE, related_name='games')
+
+
+class Fixture(models.Model):
+
+    _data = None
+    date = models.DateField(unique=True)
 
     @property
-    def info(self):
-        if not self._d:
+    def data(self):
+        if not self._data:
             print('making requets....')
-            self._d = self.api_data()
+            self._data = self.api_data()
 
-        return self._d
+        return self._data
 
     def api_data(self):
         url = 'http://sportscenter.api.espn.com/apis/v2/events'
-
-        params =  {
-                 "advance": "true",
+        params = {
+            "advance": "true",
               "sport": "basketball",
               "league": "nba",
               "profile": "sportscenter_v1",
@@ -91,7 +104,7 @@ class Fixture:
               "locale": "GB",
               "isPremium": "false"
             }
-
+        print(params)
         headers = {
             'Host': 'sportscenter.api.espn.com',
             'Accept': '*/*',
@@ -107,7 +120,6 @@ class Fixture:
         }
 
         return requests.get(url, params=params, headers=headers).json()
-
 
     def __str__(self):
         return str(self.date)
